@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\ComplianceRequirementController;
 use App\Http\Controllers\Api\V1\ComplianceCalendarController;
 use App\Http\Controllers\Api\V1\UserComplianceProfileController;
 use App\Http\Controllers\Api\V1\FcmTokenController;
+use App\Http\Controllers\Api\V1\UserEventCompletionController;
+use App\Http\Controllers\Api\V1\UserCustomDeadlineController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -32,5 +34,15 @@ Route::prefix('v1')->group(function () {
         Route::delete('user/compliance-profiles/{userComplianceProfile}', [UserComplianceProfileController::class, 'destroy']);
 
         Route::post('user/fcm-token', [FcmTokenController::class, 'store']);
+
+        // Event completions (mark as done / toggle)
+        Route::get('user/completed-events',          [UserEventCompletionController::class, 'index']);
+        Route::post('user/completed-events/toggle',  [UserEventCompletionController::class, 'toggle']);
+
+        // Custom deadlines (CRUD)
+        Route::get('user/custom-deadlines',                          [UserCustomDeadlineController::class, 'index']);
+        Route::post('user/custom-deadlines',                         [UserCustomDeadlineController::class, 'store']);
+        Route::put('user/custom-deadlines/{customDeadline}',         [UserCustomDeadlineController::class, 'update']);
+        Route::delete('user/custom-deadlines/{customDeadline}',      [UserCustomDeadlineController::class, 'destroy']);
     });
 });
