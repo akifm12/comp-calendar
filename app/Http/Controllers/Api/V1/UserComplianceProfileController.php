@@ -22,11 +22,18 @@ class UserComplianceProfileController extends Controller
             'regulator_id'        => 'required|integer|exists:regulators,id',
             'activity_id'         => 'required|integer|exists:license_activities,id',
             'notify_days_before'  => 'nullable|integer|min:1|max:90',
+            'license_expiry_date' => 'nullable|date',
+            'fy_end_month'        => 'nullable|integer|min:1|max:12',
         ]);
 
         $profile = $request->user()->complianceProfiles()->updateOrCreate(
             ['regulator_id' => $request->regulator_id, 'license_activity_id' => $request->activity_id],
-            ['name' => $request->name, 'notify_days_before' => $request->integer('notify_days_before', 7)]
+            [
+                'name'                => $request->name,
+                'notify_days_before'  => $request->integer('notify_days_before', 7),
+                'license_expiry_date' => $request->license_expiry_date,
+                'fy_end_month'        => $request->integer('fy_end_month', 12),
+            ]
         );
         $profile->load(['regulator','licenseActivity']);
         return response()->json(['data' => $this->fmt($profile)], 201);
@@ -42,12 +49,14 @@ class UserComplianceProfileController extends Controller
     private function fmt(UserComplianceProfile $p): array
     {
         return [
-            'id'                 => $p->id,
-            'name'               => $p->name,
-            'notify_days_before' => $p->notify_days_before,
-            'created_at'         => $p->created_at->toIso8601String(),
-            'regulator'          => $p->regulator,
-            'activity'           => [
+            'id'                  => $p->id,
+            'name'                => $p->name,
+            'notify_days_before'  => $p->notify_days_before,
+            'license_expiry_date' => $p->license_expiry_date?->toDateString(),
+            'fy_end_month'        => $p->fy_end_month ?? 12,
+            'created_at'          => $p->created_at->toIso8601String(),
+            'regulator'           => $p->regulator,
+            'activity'            => [
                 'id'                     => $p->licenseActivity->id,
                 'name'                   => $p->licenseActivity->name,
                 'sector'                 => $p->licenseActivity->sector,

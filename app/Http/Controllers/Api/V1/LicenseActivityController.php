@@ -11,10 +11,11 @@ class LicenseActivityController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $request->validate(['regulator_id' => 'required|integer|exists:regulators,id']);
-        $query = LicenseActivity::active()
-            ->where('suggested_regulator_id', $request->regulator_id)
-            ->with('suggestedRegulator');
+        $request->validate(['regulator_id' => 'nullable|integer|exists:regulators,id']);
+        $query = LicenseActivity::active()->with('suggestedRegulator');
+        if ($request->filled('regulator_id')) {
+            $query->where('suggested_regulator_id', $request->regulator_id);
+        }
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
         }
